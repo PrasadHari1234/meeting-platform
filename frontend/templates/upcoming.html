@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% set active = "upcoming" %}
+{% block title %}Upcoming Meetings — MeetingAI{% endblock %}
+
+{% block content %}
+<div class="p-8 max-w-3xl">
+  <h1 class="text-2xl font-bold text-white mb-6">Upcoming Meetings</h1>
+
+  <!-- Add form -->
+  <div class="card p-6 mb-6">
+    <h2 class="font-semibold text-white mb-4">Add Upcoming Meeting</h2>
+    <form action="/upcoming" method="POST" class="grid grid-cols-2 gap-3">
+      <input name="title" placeholder="Meeting title *" required
+             class="col-span-2 bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500">
+      <input name="scheduled_at" type="datetime-local" required
+             class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500">
+      <input name="attendees" placeholder="Attendees (comma separated)"
+             class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500">
+      <input name="meeting_link" placeholder="Zoom / Teams link"
+             class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500">
+      <textarea name="agenda" placeholder="Agenda notes"
+                class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-2.5 text-white text-sm outline-none focus:border-blue-500 resize-none h-20"></textarea>
+      <div class="flex items-end">
+        <button type="submit" class="btn-primary w-full">Add Meeting</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- List -->
+  {% if meetings %}
+  <div class="flex flex-col gap-3">
+    {% for m in meetings %}
+    <div class="card p-5">
+      <div class="flex items-start justify-between">
+        <div>
+          <p class="font-semibold text-white">{{ m.title }}</p>
+          <p class="text-blue-400 text-sm mt-1">📅 {{ m.scheduled_at[:16].replace('T', ' ') }}</p>
+          {% if m.attendees %}<p class="text-slate-400 text-sm mt-1">👥 {{ m.attendees }}</p>{% endif %}
+          {% if m.agenda %}<p class="text-slate-500 text-sm mt-2">{{ m.agenda }}</p>{% endif %}
+        </div>
+        {% if m.meeting_link %}
+        <a href="{{ m.meeting_link }}" target="_blank"
+           class="btn-primary text-sm flex-shrink-0">Join →</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card p-12 text-center">
+    <div class="text-4xl mb-3">📅</div>
+    <p class="text-slate-300 font-medium">No upcoming meetings</p>
+    <p class="text-slate-500 text-sm mt-1">Add one above to keep track.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
