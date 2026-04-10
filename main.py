@@ -90,6 +90,27 @@ async def auth_google(request: Request):
 async def auth_callback(request: Request, access_token: str = None,
                         refresh_token: str = None, code: str = None):
     """Handle Supabase OAuth callback — exchange code for user info."""
+
+    # If no token in query params, Supabase put it in the URL fragment (#).
+    # Serve a tiny JS page that reads the fragment and re-sends as query param.
+    if not access_token and not code:
+        return HTMLResponse("""
+<!DOCTYPE html><html><head><title>Signing in…</title></head><body>
+<script>
+  const hash = window.location.hash.substring(1);
+  const params = new URLSearchParams(hash);
+  const access_token = params.get('access_token');
+  const refresh_token = params.get('refresh_token');
+  if (access_token) {
+    window.location = '/auth/callback?access_token=' + access_token +
+      (refresh_token ? '&refresh_token=' + refresh_token : '');
+  } else {
+    window.location = '/login?error=no_token';
+  }
+</script>
+<p>Signing you in…</p>
+</body></html>""")
+
     try:
         from supabase import create_client
         sb = create_client(settings.SUPABASE_URL, settings.SUPABASE_ANON_KEY)
