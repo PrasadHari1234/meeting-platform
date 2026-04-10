@@ -77,7 +77,7 @@ async def root(request: Request):
 async def login_page(request: Request):
     if get_user(request):
         return RedirectResponse("/dashboard")
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request, "login.html")
 
 
 @app.get("/auth/google")
@@ -133,8 +133,7 @@ async def dashboard(request: Request):
     upcoming  = db.get_upcoming_meetings(user["id"])
     stats     = db.get_user_stats(user["id"])
 
-    return templates.TemplateResponse("dashboard.html", {
-        "request":  request,
+    return templates.TemplateResponse(request, "dashboard.html", {
         "user":     user,
         "meetings": meetings,
         "upcoming": upcoming,
@@ -154,8 +153,7 @@ async def meeting_detail(request: Request, meeting_id: str):
     if not meeting or meeting.get("user_id") != user["id"]:
         raise HTTPException(404, "Meeting not found")
 
-    return templates.TemplateResponse("meeting.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "meeting.html", {
         "user":    user,
         "meeting": meeting,
     })
@@ -182,8 +180,7 @@ async def action_items_page(request: Request, status: str = None):
         return RedirectResponse("/login")
 
     items = db.get_user_action_items(user["id"], status=status)
-    return templates.TemplateResponse("action_items.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "action_items.html", {
         "user":    user,
         "items":   items,
         "filter":  status,
@@ -208,8 +205,8 @@ async def upcoming_page(request: Request):
     if not user:
         return RedirectResponse("/login")
     meetings = db.get_upcoming_meetings(user["id"])
-    return templates.TemplateResponse("upcoming.html", {
-        "request": request, "user": user, "meetings": meetings
+    return templates.TemplateResponse(request, "upcoming.html", {
+        "user": user, "meetings": meetings
     })
 
 
